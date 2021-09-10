@@ -18,6 +18,7 @@ use PhpTwinfield\Message\Message;
 use PhpTwinfield\Office;
 use PhpTwinfield\Response\Response;
 use PhpTwinfield\SalesTransaction;
+use PhpTwinfield\SalesTransactionLine;
 use PhpTwinfield\Transactions\TransactionFields\DueDateField;
 use PhpTwinfield\Transactions\TransactionFields\FreeTextFields;
 use PhpTwinfield\Transactions\TransactionFields\InvoiceNumberField;
@@ -147,6 +148,16 @@ class TransactionMapper
             $transactionLine = new $transactionLineClassName();
             $lineType        = $lineElement->getAttribute('type');
 
+            $matchStatus = self::getField($transaction, $lineElement, 'matchstatus');
+            // Workaround for Twinfield that returns the 'available' status for detail/vat lines where it should not
+            // be possible to use those values..
+            if (
+                $transactionLine instanceof SalesTransactionLine
+                && in_array($lineType, [LineType::DETAIL, LineType::VAT])
+            ) {
+                $matchStatus = BaseTransactionLine::MATCHSTATUS_NOTMATCHABLE;
+            }
+
             $transactionLine
                 ->setLineType(new LineType($lineType))
                 ->setId($lineElement->getAttribute('id'))
@@ -159,7 +170,7 @@ class TransactionMapper
                 ->setRepValue(self::getFieldAsMoney($transaction, $lineElement, 'repvalue', $currency))
                 ->setRepRate(self::getField($transaction, $lineElement, 'reprate'))
                 ->setDescription(self::getField($transaction, $lineElement, 'description'))
-                ->setMatchStatus(self::getField($transaction, $lineElement, 'matchstatus'))
+                ->setMatchStatus($matchStatus)
                 ->setMatchLevel(self::getField($transaction, $lineElement, 'matchlevel'))
                 ->setVatCode(self::getField($transaction, $lineElement, 'vatcode'));
 
