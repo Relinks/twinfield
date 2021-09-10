@@ -148,13 +148,12 @@ class TransactionMapper
             $transactionLine = new $transactionLineClassName();
             $lineType        = $lineElement->getAttribute('type');
 
+            $isSalesTransactionLine = $transactionLine instanceof SalesTransactionLine;
+
             $matchStatus = self::getField($transaction, $lineElement, 'matchstatus');
             // Workaround for Twinfield that returns the 'available' status for detail/vat lines where it should not
             // be possible to use those values..
-            if (
-                $transactionLine instanceof SalesTransactionLine
-                && in_array($lineType, [LineType::DETAIL, LineType::VAT])
-            ) {
+            if ($isSalesTransactionLine && in_array($lineType, [LineType::DETAIL, LineType::VAT], true)) {
                 $matchStatus = BaseTransactionLine::MATCHSTATUS_NOTMATCHABLE;
             }
 
@@ -171,8 +170,12 @@ class TransactionMapper
                 ->setRepRate(self::getField($transaction, $lineElement, 'reprate'))
                 ->setDescription(self::getField($transaction, $lineElement, 'description'))
                 ->setMatchStatus($matchStatus)
-                ->setMatchLevel(self::getField($transaction, $lineElement, 'matchlevel'))
                 ->setVatCode(self::getField($transaction, $lineElement, 'vatcode'));
+
+            // Workaround for incorrect matchlevel value from twinfield..
+            if (($isSalesTransactionLine && $lineType === LineType::TOTAL) || !$isSalesTransactionLine) {
+                $transactionLine->setMatchLevel(self::getField($transaction, $lineElement, 'matchlevel'));
+            }
 
             // TODO - according to the docs, the field is called <basevalueopen>, but the examples use <openbasevalue>.
             $baseValueOpen = self::getFieldAsMoney($transaction, $lineElement, 'basevalueopen', $currency) ?: self::getFieldAsMoney($transaction, $lineElement, 'openbasevalue', $currency);
