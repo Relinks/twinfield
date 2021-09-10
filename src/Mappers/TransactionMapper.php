@@ -149,6 +149,7 @@ class TransactionMapper
             $lineType        = $lineElement->getAttribute('type');
 
             $isSalesTransactionLine = $transactionLine instanceof SalesTransactionLine;
+            $isTotalSalesTransactionLine = $isSalesTransactionLine && $lineType === LineType::TOTAL;
 
             $matchStatus = self::getField($transaction, $lineElement, 'matchstatus');
             // Workaround for Twinfield that returns the 'available' status for detail/vat lines where it should not
@@ -173,13 +174,13 @@ class TransactionMapper
                 ->setVatCode(self::getField($transaction, $lineElement, 'vatcode'));
 
             // Workaround for incorrect matchlevel value from twinfield..
-            if (($isSalesTransactionLine && $lineType === LineType::TOTAL) || !$isSalesTransactionLine) {
+            if ($isTotalSalesTransactionLine || !$isSalesTransactionLine) {
                 $transactionLine->setMatchLevel(self::getField($transaction, $lineElement, 'matchlevel'));
             }
 
             // TODO - according to the docs, the field is called <basevalueopen>, but the examples use <openbasevalue>.
             $baseValueOpen = self::getFieldAsMoney($transaction, $lineElement, 'basevalueopen', $currency) ?: self::getFieldAsMoney($transaction, $lineElement, 'openbasevalue', $currency);
-            if ($baseValueOpen) {
+            if ($baseValueOpen && ($isTotalSalesTransactionLine || !$isSalesTransactionLine)) {
                 $transactionLine->setBaseValueOpen($baseValueOpen);
             }
 
