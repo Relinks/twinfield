@@ -228,7 +228,7 @@ class TransactionMapper
             if (in_array(ValueOpenField::class, class_uses($transactionLine))) {
                 // TODO - according to the docs, the field is called <valueopen>, but the examples use <openvalue>.
                 $valueOpen = self::getFieldAsMoney($transaction, $lineElement, 'valueopen', $currency) ?: self::getFieldAsMoney($transaction, $lineElement, 'openvalue', $currency);
-                if ($valueOpen) {
+                if ($valueOpen && ($isTotalSalesTransactionLine || !$isSalesTransactionLine)) {
                     $transactionLine->setValueOpen($valueOpen);
                 }
             }
