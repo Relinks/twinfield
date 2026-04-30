@@ -20,9 +20,6 @@
   "config": {
     "sort-packages": true
   },
-  "conflict": {
-    "pronamic/twinfield": "*"
-  },
   "replace": {
     "pronamic/twinfield": "*"
   },
@@ -33,7 +30,7 @@
     "ext-soap": "*",
     "moneyphp/money": "^3.0 || ^4.0",
     "myclabs/php-enum": "^1.5",
-    "psr/http-message": "^1.0",
+    "psr/http-message": "^1.0 || ^2.0",
     "psr/log": "^1.0 || ^2.0 || ^3.0",
     "webmozart/assert": "^1.2"
   },

@@ -6,6 +6,7 @@ use PhpTwinfield\Transactions\TransactionFields\DueDateField;
 use PhpTwinfield\Transactions\TransactionFields\InvoiceNumberField;
 use PhpTwinfield\Transactions\TransactionFields\PaymentReferenceField;
 use PhpTwinfield\Transactions\TransactionLineFields\ThreeDimFields;
+use PhpTwinfield\Transactions\TransactionFields\DueDateField;
 
 /**
  * @link https://accounting.twinfield.com/webservices/documentation/#/ApiReference/SalesTransactions
