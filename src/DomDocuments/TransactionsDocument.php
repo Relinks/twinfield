@@ -124,8 +124,12 @@ class TransactionsDocument extends BaseDocument
             $lineElement->setAttribute('id', $transactionLine->getId());
             $linesElement->appendChild($lineElement);
 
-            $dim1Element = $this->createNodeWithTextContent('dim1', $transactionLine->getDim1());
-            $lineElement->appendChild($dim1Element);
+            $dim1 = $transactionLine->getDim1();
+            $isVatLine = $transactionLine->getLineType()->equals(LineType::VAT());
+            if (!$isVatLine || !empty($dim1)) {
+                $dim1Element = $this->createNodeWithTextContent('dim1', $dim1);
+                $lineElement->appendChild($dim1Element);
+            }
 
             $dim2 = $transactionLine->getDim2();
             if (!empty($dim2)) {
@@ -218,6 +222,11 @@ class TransactionsDocument extends BaseDocument
                 $lineElement->appendChild($vatElement);
             }
 
+            $currencyDate = $transactionLine->getCurrencyDate();
+            if (!empty($currencyDate)) {
+                $this->appendDateElement($lineElement, "currencydate", $transactionLine->getCurrencyDate());
+            }
+
             $baseline = $transactionLine->getBaseline();
             if (!empty($baseline)) {
                 $baselineElement = $this->createNodeWithTextContent('baseline', $baseline);
@@ -225,7 +234,7 @@ class TransactionsDocument extends BaseDocument
             }
 
             if ($transactionLine->getDescription() !== null) {
-                $descriptionNode = $this->createTextNode($transactionLine->getDescription());
+                $descriptionNode = $this->createTextNode($transactionLine->getDescription()  ?? '');
                 $descriptionElement = $this->createElement('description');
                 $descriptionElement->appendChild($descriptionNode);
                 $lineElement->appendChild($descriptionElement);

@@ -2,6 +2,8 @@
 
 namespace PhpTwinfield;
 
+use PhpTwinfield\Enums\CollectionSchema;
+use PhpTwinfield\Enums\MeansOfPayment;
 use PhpTwinfield\Transactions\TransactionFields\OfficeField;
 use PhpTwinfield\Transactions\TransactionLineFields\VatCodeField;
 
@@ -46,14 +48,17 @@ class Customer
     private $editDimensionName;
     private $dueDays = 0;
     private $payAvailable = false;
+    private $meansOfPayment;
     private $payCode;
     private $vatCode;
     private $eBilling = false;
     private $eBillMail;
     private $collectMandate;
+    private $collectionSchema;
     private $creditManagement;
     private $addresses = array();
     private $banks = array();
+    private $postingRules = array();
     private $groups;
 
     public function getCode()
@@ -264,6 +269,17 @@ class Customer
         return $this;
     }
 
+    public function getMeansOfPayment(): ?MeansOfPayment
+    {
+        return $this->meansOfPayment;
+    }
+
+    public function setMeansOfPayment(?MeansOfPayment $meansOfPayment): self
+    {
+        $this->meansOfPayment = $meansOfPayment;
+        return $this;
+    }
+
     public function getPayCode()
     {
         return $this->payCode;
@@ -309,6 +325,17 @@ class Customer
     public function setCollectMandate(CustomerCollectMandate $collectMandate): self
     {
         $this->collectMandate = $collectMandate;
+        return $this;
+    }
+
+    public function getCollectionSchema(): ?CollectionSchema
+    {
+        return $this->collectionSchema;
+    }
+
+    public function setCollectionSchema(CollectionSchema $collectionSchema): self
+    {
+        $this->collectionSchema = $collectionSchema;
         return $this;
     }
 
@@ -363,6 +390,27 @@ class Customer
     {
         if (array_key_exists($index, $this->banks)) {
             unset($this->banks[$index]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getPostingRules()
+    {
+        return $this->postingRules;
+    }
+
+    public function addPostingRule(CustomerPostingRule $postingrule)
+    {
+        $this->postingRules[$postingrule->getID()] = $postingrule;
+        return $this;
+    }
+
+    public function removePostingRule($index)
+    {
+        if (array_key_exists($index, $this->postingRules)) {
+            unset($this->postingRules[$index]);
             return true;
         } else {
             return false;
